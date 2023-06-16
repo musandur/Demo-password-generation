@@ -15,8 +15,6 @@ import random
 # there data. Then check if the event is sold out.
 # then sell a ticket to the customer or inform sold out decision
 
-# if BookTicket.number_of_seats == BookTicket.last_seat:
-#     print("Event is sold out, Selling is over")
 print("++++++++++++++++++++++++++++")
 while BookTicket.number_of_seats < BookTicket.last_seat:
     try:
@@ -33,3 +31,4 @@ while BookTicket.number_of_seats < BookTicket.last_seat:
     except StopIteration:
         print("No more seats available.")
         break
+print("No more seats available")
