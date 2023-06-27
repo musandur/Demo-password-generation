@@ -1,36 +1,27 @@
 from itertools import combinations, permutations
 import random
+# random.seed(42)
+
+from twofactor import TwoFactorPassword
+from file_import_cleaned import clean_file
+from password import Password
 
 
-first_seat = 1
-last_seat = 3
-num_seats = 3
-confidential_list = list(range(0, 100)) #[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-#confidential_list = range(1, 2+1)
+psw_object = Password("musa", "ndur")
+first_pwd = psw_object.first_password()
+print(f"First password: {first_pwd}")
 
-seats = list(range(first_seat, last_seat + 1))
-#num_code = permutations(list(confidential_list))
-num_code = random.sample(confidential_list, 3)
+file_path = "words/words_dictionary.json"
 
-# number_of_seats = 0
-# num_code = range(1, 3+1)
-# print(list(num_code))
+list_words = clean_file(file_path)
+number_of_words = 3
 
-# num_code = random.sample(range(101, 999), 3)
-# print(num_code)
+two_fac_object = TwoFactorPassword(list_words, number_of_words, "musa", "ndur")
+twofac_pwd = two_fac_object.generate_twofac_password()
+print(f"Two fac password: {twofac_pwd}")
 
-# str_code = ' '.join(str(element) for element in num_code)
-# print(list(str_code))
+print("*"*50)
+two_fac_object.print_registration_details(first_pwd, twofac_pwd)
 
-print(num_code)
-str_code = ''.join(str(element) for element in num_code)
-print(str_code)
-list_str_code = list(str_code)
-
-print(list_str_code)
-
-lst_copy = list_str_code.copy()
-random.shuffle(lst_copy)
-print(lst_copy)
-
-#list(permutations())
+print("*"*50)
+print(two_fac_object.store_registration_info(first_pwd, twofac_pwd))

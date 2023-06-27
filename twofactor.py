@@ -1,107 +1,97 @@
-import json
 import random
 import string
-from password import BookTicket
+from password import Password
 
 
-class TwoFactor(BookTicket):
+class TwoFactorPassword(Password):
 
-    letters = ('a', 'A', 'O', 't', 'E', 'I', 'S')  # potential class attribute
-    transformed_letters = ('@', '4', '0', '+', '3', '1', '5')   # potential class attribute
+    '''
+    The sub class inherits the class Password and encapsulates the two factor authentication code 
+
+    Class attributes:
+    letters: chosen letters to mapped to special characters 
+    transformed_letters: special characters that replacing selected letters
+    dict_trans: dictionary of letters and transfomed_letters
+    number_of_registered: it records  in the fly the number of registered users.
+
+    Instance attributes:
+    list_words: the list containing the universe of words that we will use to build the two fac passwords
+    num_words: Number of words chosen to build a two fac password
+    '''
+
+
+
+    number_of_registered = 0
+    letters = ('a', 'A', 'O', 't', 'E', 'I', 'S')  
+    transformed_letters = ('@', '4', '0', '+', '3', '1', '5')   
     dict_trans = {letter: tran for letter, tran in zip(letters, transformed_letters)}
     
-    def __init__(self, list_words, min_word_len, max_word_len, num_words, first, last, middle=None):
-        super().__init__(first, last, middle)
-        self.min_word_len = min_word_len
-        self.max_word_len = max_word_len
-        self.num_words = num_words
-        self.list_words = list_words
+    
+    def __init__(self, list_words, num_words, first_name, last_name, middle_name=None):
+        super().__init__(first_name, last_name, middle_name)
+        self.num_words = num_words  
+        self.list_words = list_words 
+        TwoFactorPassword.number_of_registered += 1
 
     
 
     def generate_twofac_password(self):
+        '''
+        This method generates the two factor authentication password
+
+        Return:
+        the two fac password string.
+        '''
 
         draft_password = random.sample(self.list_words, self.num_words)
         upper_lower_char_psw = ''.join(map(lambda c: c.upper() if random.choice([0, 1]) else c.lower(), draft_password))
 
-        dict_transform = {letter: tran for letter, tran in zip(TwoFactor.letters, TwoFactor.transformed_letters)}
+        dict_transform = {letter: tran for letter, tran in zip(TwoFactorPassword.letters, TwoFactorPassword.transformed_letters)}
         xform = str.maketrans(dict_transform)
 
         return upper_lower_char_psw.translate(xform) + random.choice(string.punctuation)
     
-    def confirm_employee_ticket(self):
-        print(f"Two factor authentication password: {self.generate_twofac_password()}")
-        return super().confirm_employee_ticket()
+    
+    def store_registration_info(self, first_pwd, twofac_pwd):
+        '''
+        This method build the dictionary containg the total registration info including the full name and the two passwords.
 
+        Inputs:
+        first_pwd: the first password generated from the parent class Password
+        two fact_pwd: the second password called two factor authentication generated from the child class TwoFactorPassword
+
+        Return:
+        dict_info: the dictionary containg the total registration info 
+
+        '''
+
+        dict_info = {}
+        dict_info["Name"] = self.first_name
+        if self.middle_name:
+            dict_info["Middle name"] = self.middle_name
+        dict_info["Surname"] =  self.last_name
+        dict_info["First password"] = first_pwd
+        dict_info["Two Factor password"] = twofac_pwd
+        dict_info["Total number of registered users"] = self.number_of_registered
         
-
-f = open("words/words.txt")
-print(f.name)
-# i = 0
-# for file in f:
-#     print(file)
-#     i += 1
-#     if i == 5:
-#         break
-
-with open("words/words_dictionary.json", "r") as file:
-    word_data = json.load(file)
-
-j = 0
-for key, val in word_data.items():
-    print(key, val)
-    j += 1
-    if j == 5:
-        break
+        return dict_info
 
 
-min_word_len = 4
-max_word_len = 6
-num_words = 3
-list_words = list(word_data.keys())  # potential class attribute
-set_words = set(list_words)
-cleaned_words = list(filter(lambda word: min_word_len <= len(word) <=
-                            max_word_len, set_words))
+    def print_registration_details(self, first_pwd, twofac_pwd):
 
-print(cleaned_words[:10])
-
-# generate a password.
-sample_words = random.sample(cleaned_words, num_words)
-print(sample_words)
-test_psw = ''.join(sample_words)
-print(test_psw)
-
-# Now we can write the algorithm
-
-# text = 'apple'
+        '''
+        This method print the registration information.
+        '''
+        print(f"Name: {self.first_name}")
+        if self.middle_name:
+            print(f"Middle name: {self.middle_name}")
+        print(f"Surname: {self.last_name}")
+        print(f"First password: {first_pwd}")
+        print(f"Two factor Authentication: {twofac_pwd}")
+        print(f"Total number of registered users: {self.number_of_registered}")
+    
 
 
-def upper_lower_func(psw):
-    return ''.join(map(lambda c: c.upper() if random.choice([0, 1]) else c.lower(), psw))
-
-
-upper_lower_psw = upper_lower_func(test_psw)
-print(upper_lower_psw)
-# print(random.choice(string.punctuation))
-dict_trans = dict()
-letters = ('a', 'A', 'O', 't', 'E', 'I', 'S')  # potential class attribute
-trans = ('@', '4', '0', '+', '3', '1', '5')   # potential class attribute
-dict_trans = {letter: tran for letter, tran in zip(letters, trans)}
-print(dict_trans)
-
-
-def letter_to_char(upper_lower_word):
-    dict_trans = {letter: tran for letter, tran in zip(letters, trans)}
-    xform = str.maketrans(dict_trans)
-
-    return upper_lower_word.translate(xform) + random.choice(string.punctuation)
-
-
-end_psw = letter_to_char(upper_lower_psw)
-print(end_psw)
-
-# xform = str.maketrans(dict_trans)
-# print(xform)
-
-# end_psw = upper_lower_psw.translate(xform) + random.choice(string.punctuation)
-# print(end_psw)
+if __name__ == "__main__":
+    
+    print("Two factor authentication class created successfully!")
